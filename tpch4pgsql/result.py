@@ -23,7 +23,7 @@ class Result:
         if self.__start__ is not None:
             delta = dt.datetime.now() - self.__start__
             self.__start__ = None
-            return delta
+            return delta.total_seconds()
         else:
             print("timer not started")
             return None

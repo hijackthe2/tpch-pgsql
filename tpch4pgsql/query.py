@@ -401,6 +401,20 @@ def load_results(results_dir):
                 results.append({"key": key, "value": value})
     return results
 
+def load_results_from_specific_run_timestamp(results_dir, run_timestamp):
+    json_files = []
+    for mode in [POWER, THROUGHPUT]:
+        sub_dir = os.path.join(results_dir, run_timestamp, mode)
+        if os.path.exists(sub_dir) and os.path.isdir(sub_dir):
+            json_files += get_json_files_from(sub_dir)
+    results = []
+    for json_filename in json_files:
+        with open(json_filename, 'r') as json_file:
+            raw = json_file.read()
+            js = json.loads(raw)
+            for key, value in js.items():
+                results.append({"key": key, "value": value})
+    return results
 
 def get_timedelta_in_seconds(time_interval):
     """Convert time delta as string into numeric value in seconds
@@ -488,7 +502,11 @@ def get_power_size(results, scale_factor):
     for j in [1, 2]:  # two refresh functions
         ri_product *= ri(results, j, 0)
     denominator = math.pow(qi_product * ri_product, 1/24)
-    power_size = (3600 / denominator) * scale_factor
+    power_size = 0
+    if denominator == 0:
+        print('denominator is zero somehow, so Power@Size is set to zero')
+    else:
+        power_size = (3600 / denominator) * scale_factor
     return power_size
 
 
@@ -500,7 +518,12 @@ def get_throughput_size(results, scale_factor, num_streams):
     :param num_streams: number of streams
     :return: Troughput@Size
     """
-    throughput_size = ((num_streams * NUM_QUERIES) / ts(results)) * 3600 * scale_factor
+    throughput_size = 0
+    denominator = ts(results)
+    if denominator == 0:
+        print('denominator is zero somehow, so Troughput@Size is set to zero')
+    else:
+        throughput_size = ((num_streams * NUM_QUERIES) / denominator) * 3600 * scale_factor
     return throughput_size
 
 
@@ -524,7 +547,7 @@ def calc_metrics(results_dir, run_timestamp, scale_factor, num_streams):
     :param num_streams: number of streams
     :return: none
     """
-    results = load_results(results_dir)
+    results = load_results_from_specific_run_timestamp(results_dir, run_timestamp)
     res = r.Result("Metric")
     #
     power_size = get_power_size(results, scale_factor)
@@ -541,3 +564,9 @@ def calc_metrics(results_dir, run_timestamp, scale_factor, num_streams):
     #
     res.printMetrics("Metrics")
     res.saveMetrics(results_dir, run_timestamp, "metrics")
+    src_path = os.path.join(results_dir, run_timestamp)
+    dst_path = os.path.join(results_dir, 'final_result')
+    print('results saved to', src_path)
+    import shutil
+    shutil.copytree(src_path, dst_path)
+    print('results copied to', dst_path)

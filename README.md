@@ -1,3 +1,5 @@
+NOTICE: This project is forked from <https://github.com/Data-Science-Platform/tpch-pgsql>
+
 # tpch-pgsql
 [![Build status](https://travis-ci.org/Data-Science-Platform/tpch-pgsql.svg?branch=master)](https://travis-ci.org/Data-Science-Platform/tpch-pgsql)
 
@@ -5,6 +7,8 @@ Implements the [TPC-H benchmark](http://www.tpc.org/tpch/) for Postgres
 
 ### Requirements
 * The benchmark requires TPC-H dbgen:
+  
+  For the installation path of `tpch-dbgen`, please refer to the `-g` command option introduced in [Usage](#usage)
 ```
 wget -q https://github.com/electrum/tpch-dbgen/archive/32f1c1b92d1664dba542e927d23d86ffa57aa253.zip -O tpch-dbgen.zip
 unzip -q tpch-dbgen.zip && mv tpch-dbgen-32f1c1b92d1664dba542e927d23d86ffa57aa253 tpch-dbgen && rm tpch-dbgen.zip
@@ -87,7 +91,7 @@ optional arguments:
                         User for the PostgreSQL instance; default is postgres
   -W [PASSWORD], --password [PASSWORD]
                         Password for the PostgreSQL instance; default is
-                        test123
+                        123456
   -d DBNAME, --dbname DBNAME
                         Name of the database; default is tpch
   -i DATA_DIR, --data-dir DATA_DIR
@@ -127,6 +131,13 @@ Each run consists of two parts:
         * query execution time for the 22 TPC-H queries
         * refresh function 2
     * Throughput test: This consists of parallel execution of the query streams and the pairs of refresh functions
+
+* `query with shell script`   
+Execute sql case by case rawly, please check and modify (if necessary) the path of `.sql` files.   
+
+   ```
+   'time' -f "%e" sh all_query.sh ${host} ${user} ${password} ${dbname} ${port}
+   ```
 
 ### TPC-H Process
 The complete process for executing TPC-H tests is illustrated in the following figure:

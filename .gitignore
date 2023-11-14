@@ -60,3 +60,5 @@ perf_query_gen/
 tpch-dbgen/
 tags
 results/
+data/
+tpch4pgsql/__pycache__
